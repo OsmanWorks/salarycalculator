@@ -1,111 +1,612 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Chaajao Salary Calculator</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chaajao Technologies – Salary Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-body{
-    font-family: Arial, sans-serif;
-    background:#f4f6f9;
-    padding:40px;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --red: #B31312;
+  --red-dark: #8a0f0e;
+  --red-glow: rgba(179,19,18,0.3);
+  --purple: #37306B;
+  --purple-light: #4e4590;
+  --white: #ffffff;
+  --bg: #0e0e14;
+  --panel: #13131c;
+  --border: rgba(255,255,255,0.07);
+  --text: rgba(255,255,255,0.85);
+  --muted: rgba(255,255,255,0.35);
+  --dim: rgba(255,255,255,0.08);
 }
-.container{
-    max-width:600px;
-    background:white;
-    padding:25px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
-h2{
-    text-align:center;
+
+/* ── SIDEBAR ── */
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+  position: relative;
+  overflow: hidden;
 }
-input{
-    width:100%;
-    padding:8px;
-    margin:8px 0;
+.sidebar::before {
+  content: '';
+  position: absolute;
+  bottom: -60px; left: -60px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(179,19,18,0.06), transparent 70%);
+  pointer-events: none;
 }
-button{
-    width:100%;
-    padding:10px;
-    background:#007bff;
-    color:white;
-    border:none;
-    cursor:pointer;
+.sidebar::after {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(55,48,107,0.08), transparent 70%);
+  pointer-events: none;
 }
-.result{
-    margin-top:20px;
-    background:#eef2ff;
-    padding:15px;
-    border-radius:8px;
+
+.logo-area { position: relative; z-index: 1; margin-bottom: 40px; }
+.logo-icon {
+  width: 48px; height: 48px;
+  background: linear-gradient(135deg, var(--red), var(--purple));
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  margin-bottom: 14px;
+  display: none;
+}
+.logo-area h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.35rem;
+  letter-spacing: 0.06em;
+  color: white;
+  line-height: 1.1;
+}
+.logo-area span {
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--muted);
+  display: none;
+  margin-top: 4px;
+  letter-spacing: 0.04em;
+}
+
+.nav-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 10px;
+  position: relative; z-index: 1;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+  position: relative; z-index: 1;
+}
+.nav-item.active {
+  background: linear-gradient(135deg, rgba(179,19,18,0.18), rgba(55,48,107,0.18));
+  border: 1px solid rgba(179,19,18,0.25);
+  color: white;
+}
+.nav-item .dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+  flex-shrink: 0;
+}
+.nav-item.active .dot { animation: pulse 1.8s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 4px var(--red); }
+  50%       { box-shadow: 0 0 8px var(--red); }
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  position: relative; z-index: 1;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.sidebar-footer p {
+  font-size: 0.72rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.sidebar-footer strong { color: rgba(255,255,255,0.5); }
+
+/* ── MAIN CONTENT ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* topbar */
+.topbar {
+  height: 64px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 36px;
+  background: var(--panel);
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: 0.08em;
+  color: white;
+}
+.topbar-badge {
+  background: linear-gradient(135deg, var(--red), var(--purple));
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 100px;
+  letter-spacing: 0.06em;
+}
+
+/* content area */
+.content {
+  flex: 1;
+  padding: 32px 36px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+  align-content: start;
+}
+
+/* ── PANELS ── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 26px;
+  position: relative;
+  overflow: hidden;
+  animation: panelIn 0.5s ease forwards;
+  opacity: 0; transform: translateY(16px);
+}
+.panel:nth-child(1) { animation-delay: 0.05s; }
+.panel:nth-child(2) { animation-delay: 0.12s; }
+.panel:nth-child(3) { animation-delay: 0.19s; grid-column: 1 / -1; }
+
+@keyframes panelIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--red), var(--purple));
+}
+
+.panel-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.65);
+  margin-bottom: 20px;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel-title::before {
+  content: '';
+  width: 14px; height: 2px;
+  background: var(--red);
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* ── INPUTS ── */
+.field { margin-bottom: 18px; }
+.field:last-of-type { margin-bottom: 0; }
+
+.field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 8px;
+}
+
+.input-row {
+  display: flex; align-items: center;
+  background: var(--dim);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-row:focus-within {
+  border-color: rgba(179,19,18,0.5);
+  box-shadow: 0 0 0 3px rgba(179,19,18,0.1);
+}
+.input-tag {
+  padding: 0 14px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255,120,120,0.95);
+  background: rgba(179,19,18,0.15);
+  border-right: 1px solid var(--border);
+  height: 44px;
+  display: flex; align-items: center;
+  white-space: nowrap;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+.input-row input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0 14px;
+  height: 44px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: white;
+}
+.input-row input::placeholder { color: rgba(255,255,255,0.1); font-weight: 300; }
+
+/* ── CALCULATE BUTTON ── */
+.calc-btn {
+  width: 100%;
+  margin-top: 22px;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--red) 0%, var(--purple) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s;
+  box-shadow: 0 4px 14px rgba(179,19,18,0.2);
+  position: relative; overflow: hidden;
+}
+.calc-btn::before {
+  content: '';
+  position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  transition: left 0.5s;
+}
+.calc-btn:hover::before { left: 100%; }
+.calc-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(179,19,18,0.28); }
+.calc-btn:active { transform: translateY(0); }
+
+/* ── STAT CARDS (right panel) ── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.stat {
+  background: var(--dim);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  transition: border-color 0.2s;
+  animation: statIn 0.3s ease forwards;
+  opacity: 0; transform: scale(0.95);
+}
+.stat:nth-child(1) { animation-delay: 0.05s; }
+.stat:nth-child(2) { animation-delay: 0.1s; }
+.stat:nth-child(3) { animation-delay: 0.15s; }
+.stat:nth-child(4) { animation-delay: 0.2s; }
+.stat:nth-child(5) { animation-delay: 0.25s; }
+.stat:nth-child(6) { animation-delay: 0.3s; }
+
+@keyframes statIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
+.stat:hover { border-color: rgba(179,19,18,0.3); }
+.stat .s-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 6px;
+}
+.stat .s-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+  color: white;
+}
+.stat .s-val.red    { color: #f87171; }
+.stat .s-val.green  { color: #4ade80; }
+.stat .s-val.purple { color: #a78bfa; }
+.stat .s-val.dim    { color: var(--muted); font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 400; }
+
+/* placeholder state */
+.stat .s-val.placeholder { color: rgba(255,255,255,0.12); font-family: 'Outfit',sans-serif; font-size: 0.85rem; }
+
+/* ── NET SALARY PANEL (full width) ── */
+.net-panel {
+  display: none;
+  grid-column: 1 / -1;
+}
+.net-panel.show { display: block; animation: panelIn 0.4s 0.1s cubic-bezier(0.34,1.3,0.64,1) forwards; opacity: 0; }
+
+.net-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 20px;
+}
+.net-left { display: flex; align-items: center; gap: 20px; }
+.net-icon {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, var(--red), var(--purple));
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem;
+  box-shadow: 0 6px 24px var(--red-glow);
+  flex-shrink: 0;
+}
+.net-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.6); }
+.net-amount {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  letter-spacing: 0.04em;
+  color: white;
+  line-height: 1;
+  margin-top: 4px;
+}
+.net-badge {
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.net-badge.up {
+  background: rgba(74,222,128,0.12);
+  border: 1px solid rgba(74,222,128,0.3);
+  color: #4ade80;
+}
+.net-badge.down {
+  background: rgba(248,113,113,0.12);
+  border: 1px solid rgba(248,113,113,0.3);
+  color: #f87171;
+}
+
+.disc-strip {
+  margin-top: 16px;
+  padding: 11px 16px;
+  background: rgba(179,19,18,0.06);
+  border: 1px solid rgba(179,19,18,0.18);
+  border-radius: 10px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
+  line-height: 1.5;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .content { grid-template-columns: 1fr; padding: 20px; }
+  .panel:nth-child(3) { grid-column: 1; }
+  .net-panel { grid-column: 1; }
+  .topbar { padding: 0 20px; }
+}
+@media (max-width: 500px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-<h2>Chaajao Salary Calculator</h2>
+<div class="layout">
 
-<label>Monthly Gross Salary</label>
-<input type="number" id="gross" placeholder="50000">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo-area">
+      <div class="logo-icon">💼</div>
+      <h1>CHAAJAO<br>TECHNOLOGIES</h1>
+      <span>HR Management System</span>
+    </div>
 
-<label>Total Late Minutes (Full Month)</label>
-<input type="number" id="lateMinutes" placeholder="120">
+    <div class="nav-label">Navigation</div>
+    <div class="nav-item active">
+      <span class="dot"></span>
+      Salary Calculator
+    </div>
+    <div class="nav-item">
+      <span style="width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;display:inline-block"></span>
+      Attendance
+    </div>
+    <div class="nav-item">
+      <span style="width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;display:inline-block"></span>
+      Leave Policy
+    </div>
 
-<label>Total Overtime Minutes (Valid Only)</label>
-<input type="number" id="otMinutes" placeholder="120">
+    <div class="sidebar-footer">
+      <p><strong>v1.0</strong> · Internal Use Only<br>© 2025 Chaajao Technologies</p>
+    </div>
+  </aside>
 
-<button onclick="calculateSalary()">Calculate Salary</button>
+  <!-- MAIN -->
+  <div class="main">
 
-<div class="result" id="result"></div>
-</div>
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-title">Salary Calculator</div>
+      <div class="topbar-badge">Official Policy</div>
+    </div>
+
+    <!-- CONTENT GRID -->
+    <div class="content">
+
+      <!-- LEFT: Inputs -->
+      <div class="panel">
+        <div class="panel-accent"></div>
+        <div class="panel-title">Enter Details</div>
+
+        <div class="field">
+          <label>Monthly Gross Salary</label>
+          <div class="input-row">
+            <span class="input-tag">PKR ₨</span>
+            <input type="number" id="gross" placeholder="e.g. 50000" min="0">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Total Late Minutes (Full Month)</label>
+          <div class="input-row">
+            <span class="input-tag">MIN</span>
+            <input type="number" id="lateMin" placeholder="e.g. 75" min="0">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Valid OT Minutes (50-min rule applied)</label>
+          <div class="input-row">
+            <span class="input-tag">MIN</span>
+            <input type="number" id="otMin" placeholder="e.g. 120" min="0">
+          </div>
+        </div>
+
+        <button class="calc-btn" onclick="calculate()">Calculate Net Salary</button>
+      </div>
+
+      <!-- RIGHT: Breakdown Stats -->
+      <div class="panel">
+        <div class="panel-accent"></div>
+        <div class="panel-title">Breakdown</div>
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat"><div class="s-label">Daily Rate</div><div class="s-val placeholder" id="r-daily">—</div></div>
+          <div class="stat"><div class="s-label">Hourly Rate</div><div class="s-val placeholder" id="r-hourly">—</div></div>
+          <div class="stat"><div class="s-label">Per Minute Rate</div><div class="s-val placeholder" id="r-permin">—</div></div>
+          <div class="stat"><div class="s-label">Chargeable Late Min</div><div class="s-val placeholder" id="r-clate">—</div></div>
+          <div class="stat"><div class="s-label">Late Deduction</div><div class="s-val placeholder" id="r-deduct">—</div></div>
+          <div class="stat"><div class="s-label">OT Pay</div><div class="s-val placeholder" id="r-ot">—</div></div>
+        </div>
+      </div>
+
+      <!-- BOTTOM: Net Salary (hidden until calculated) -->
+      <div class="panel net-panel" id="net-panel">
+        <div class="panel-accent"></div>
+        <div class="net-inner">
+          <div class="net-left">
+            <div class="net-icon" style="display:none">💰</div>
+            <div>
+              <div class="net-label">Final Net Salary</div>
+              <div class="net-amount" id="r-net">PKR 0</div>
+            </div>
+          </div>
+          <div class="net-badge up" id="r-badge">—</div>
+        </div>
+        <div class="disc-strip">
+          ⚠️ Calculation is based on official Chaajao Technologies policy. Enter correct late and OT minutes as per company rules.
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /layout -->
 
 <script>
+  function fmt(n, d) {
+    d = d === undefined ? 2 : d;
+    return 'PKR ' + parseFloat(n).toLocaleString('en-PK', { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
 
-function calculateSalary(){
+  function calculate() {
+    var gross   = parseFloat(document.getElementById('gross').value) || 0;
+    var lateMin = parseFloat(document.getElementById('lateMin').value) || 0;
+    var otMin   = parseFloat(document.getElementById('otMin').value) || 0;
 
-let gross = parseFloat(document.getElementById("gross").value);
-let lateMinutes = parseFloat(document.getElementById("lateMinutes").value);
-let otMinutes = parseFloat(document.getElementById("otMinutes").value);
+    if (gross <= 0) { alert('Please enter a valid Monthly Gross Salary.'); return; }
 
-if(!gross || gross <= 0){
-    alert("Enter valid salary");
-    return;
-}
+    var daily  = gross / 30;
+    var hourly = daily / 9;
+    var perMin = hourly / 60;
+    var chargeLate = lateMin > 60 ? lateMin - 60 : 0;
+    var lateDeduct = chargeLate * perMin;
+    var otPay = (otMin / 60) * hourly;
+    var net   = gross + otPay - lateDeduct;
 
-/* FIXED POLICY RATE */
-let daily = gross / 30;
-let hourly = daily / 9;
-let perMinute = hourly / 60;
+    function setVal(id, text, cls) {
+      var el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 's-val ' + (cls || '');
+    }
 
-/* LATE CALCULATION */
-let grace = 60;
-let chargeableLate = lateMinutes > grace ? lateMinutes - grace : 0;
-let lateDeduction = chargeableLate * perMinute;
+    setVal('r-daily',  fmt(daily),             'purple');
+    setVal('r-hourly', fmt(hourly),             'purple');
+    setVal('r-permin', fmt(perMin, 4),          '');
+    setVal('r-clate',  chargeLate + ' min',     chargeLate > 0 ? 'red' : 'green');
+    setVal('r-deduct', '− ' + fmt(lateDeduct),  'red');
+    setVal('r-ot',     '+ ' + fmt(otPay),       'green');
 
-/* OT CALCULATION (50 MIN RULE ALREADY FILTERED) */
-let otHours = otMinutes / 60;
-let otPay = otHours * hourly;
+    document.getElementById('r-net').textContent = fmt(net);
 
-/* FINAL SALARY */
-let netSalary = gross + otPay - lateDeduction;
+    var badge = document.getElementById('r-badge');
+    if (net >= gross) {
+      badge.textContent = '↑ Net Increase';
+      badge.className = 'net-badge up';
+    } else {
+      badge.textContent = '↓ Net Deduction';
+      badge.className = 'net-badge down';
+    }
 
-document.getElementById("result").innerHTML = `
-<b>Daily Rate:</b> ${daily.toFixed(2)} <br>
-<b>Hourly Rate:</b> ${hourly.toFixed(2)} <br>
-<b>Per Minute Rate:</b> ${perMinute.toFixed(2)} <br><br>
+    // re-animate stats
+    var stats = document.querySelectorAll('.stat');
+    stats.forEach(function(s, i) {
+      s.style.animation = 'none';
+      void s.offsetWidth;
+      s.style.animation = 'statIn 0.3s ' + (i * 0.06) + 's ease forwards';
+      s.style.opacity = '0';
+    });
 
-<b>Chargeable Late Minutes:</b> ${chargeableLate} <br>
-<b>Late Deduction:</b> ${lateDeduction.toFixed(2)} <br><br>
+    var np = document.getElementById('net-panel');
+    np.classList.remove('show');
+    void np.offsetWidth;
+    np.classList.add('show');
+  }
 
-<b>Overtime Pay:</b> ${otPay.toFixed(2)} <br><br>
-
-<h3>Net Salary: ${netSalary.toFixed(2)}</h3>
-`;
-
-}
-
+  document.addEventListener('keydown', function(e) { if (e.key === 'Enter') calculate(); });
 </script>
-
 </body>
 </html>
